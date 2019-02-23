@@ -1,0 +1,35 @@
+<html>
+    <head></head>
+    <body>
+        <%if(result!==undefined){%>
+            <%if(result.error!==undefined){%>
+                <%-result.error%>
+            <%}else if(result.songList!==undefined&&result.artistList!==undefined){
+                const songList = result.songList;
+                const artistList = result.artistList;
+            %>
+                <ul>
+                <%
+                    songList.albums.items.forEach((item,itemIdx)=>{
+                        let artistItem = artistList[itemIdx];
+                %>
+                   <li>
+                        <p><%=item.name%></p>
+                       <ul>
+                           <%artistItem.forEach((artist)=>{%>
+                                <li><%=artist.name%></li>
+                                <li><%=artist.genre%></li>
+                               <li><%=artist.follows%> follows</li>
+                               <li><img src="<%=artist.imageURL%>"/></li>
+                           <%})%>
+                       </ul>
+                       <p><%=item.external_urls.spotify%></p>
+                        <p><%=item.release_date%></p>
+                         <img src='<%=item.images[1].url%>'/>
+                   </li>
+                <%});%>
+                </ul>
+             <%}%>
+        <%}%>
+    </body>
+</html>
