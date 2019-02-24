@@ -4,7 +4,13 @@ let redirectHttp = require('follow-redirects').http;
 let router = express.Router();
 let session = require('express-session');
 
-let userToken;
+let userToken; //임시 토큰 세션
+let renderRes; //렌더링 정보 변수
+const errorRes = { //오류시 전달할 렌더링 변수
+    result:{
+        error:err
+    }
+};
 /* GET home page. */
 router.get('/', function(req, res, next) {
   let result = request.get({uri:'http://localhost:3000/auth',followAllRedirects:true},(err,resp,body)=>{
@@ -58,14 +64,9 @@ router.get('/release',(req,res)=>{
   
   let result = request.post('http://localhost:3000/api/release',{form:{token:/*req.session.userToken.access_token*/userToken.access_token}},(err,resp,body)=>{
     console.log(userToken);
-    let renderRes;
     let response = JSON.parse(resp.body);
       if(err||response===undefined){
-        renderRes = {
-          result:{
-            error:err
-          }
-        };
+        renderRes = errorRes;
         res.render('spotify/release',renderRes);
       }else{
         renderRes = {
@@ -78,6 +79,37 @@ router.get('/release',(req,res)=>{
       }
   });
   
+});
+
+router.get('/recommend',(req,res)=>{
+  let genres = req.body.genreList;
+
+});
+router.get('/search',(req,res)=>{
+  let filter = {
+    keyword:req.body.keyword,
+    popularity:{
+      max:req.body.pop_max,
+        min:req.body.pop_min
+    },
+    power:{
+      max:req.body.pow_max,
+        min:req.body.pow_min
+    }
+  };
+
+  if(filter.keyword===undefined){
+    filter.keyword = "";
+  }
+
+  let result = request.post('http://localhost:3000/api/search',{filter:filter},(err,resp,body)=>{
+    let response = JSON.parse(body);
+    if(err||response===undefined){
+        renderRes = errorRes;
+    }else{
+
+    }
+  });
 });
 
 module.exports = router;
