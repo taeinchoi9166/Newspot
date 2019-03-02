@@ -1,0 +1,34 @@
+<form>
+    <ul>
+        <%
+            if(result!==undefined){
+                if(result.genreList!==undefined){
+         %>
+                    <ul>
+                        <%
+                            result.genreList.forEach((genre)=>{
+                        %>
+                                <li><%=genre%></li>
+                        <%
+                            });
+                        %>
+
+                    </ul>
+        <%
+                }
+                if(result.recommendList!==undefined){
+         %>
+                    <p><%=JSON.stringify(result.recommendList)%></p>
+         <%
+                }
+                if(result.msg!==undefined){
+          %>
+                    <p><%=result.msg%></p>
+            <%
+                }
+            }
+        %>
+    </ul>
+
+
+</form>
