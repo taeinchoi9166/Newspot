@@ -17,6 +17,8 @@
     "follow-redirects": "^1.7.0",
     "express-session": "^1.15.6",
     "session-file-store": "^1.2.0",
-    "body-parser": "^1.18.3"
+    "body-parser": "^1.18.3",
+    "bootstrap": "^4.3.1",
+    "popper.js": "^1.14.7"
   }
 }
