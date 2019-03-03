@@ -6,14 +6,22 @@ let session = require('express-session');
 
 let userToken; //임시 토큰 세션
 let renderRes; //렌더링 정보 변수
-const errorRes = { //오류시 전달할 렌더링 변수
+let errorRes = { //오류시 전달할 렌더링 변수
     result:{
-        error:err
+        error:''
     }
 };
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  let result = request.get({uri:'http://localhost:3000/auth',followAllRedirects:true},(err,resp,body)=>{
+  let nowPage;
+  if(req.query!==undefined&&req.query.nowPage!==undefined){
+    nowPage = req.query.nowPage;
+  }
+  let authURL = 'http://localhost:3000/auth';
+  if(nowPage!==undefined){
+    authURL=authURL+'?nowPage='+nowPage;
+  }
+  let result = request.get({uri:authURL,followAllRedirects:true},(err,resp,body)=>{
    // console.log(result);
     res.redirect(resp.body); //인증 주소로 이동
   });
@@ -49,16 +57,12 @@ router.post('/auth',(req,res)=>{ //인증 성공 값 보낼시 값들을 세션�
 
     });
     res.send({successed:true});
-   // console.log(req.session.userToken);
-
-
-
   }
 });
 
 router.get('/release',(req,res)=>{
   if(userToken===undefined){
-    res.redirect('/');
+    res.redirect('/?nowPage=release');
     return;
   } //사용자 세션 만료시 받으러 감
   
@@ -66,6 +70,7 @@ router.get('/release',(req,res)=>{
     console.log(userToken);
     let response = JSON.parse(resp.body);
       if(err||response===undefined){
+        errorRes.error = err;
         renderRes = errorRes;
         res.render('spotify/release',renderRes);
       }else{
@@ -82,8 +87,80 @@ router.get('/release',(req,res)=>{
 });
 
 router.get('/recommend',(req,res)=>{
-  let genres = req.body.genreList;
+  if(userToken===undefined){
+    res.redirect('/?nowPage=recommend');
+    return;
+  } //사용자 세션 만료시 받으러 감
+  let genre = "";
+  if(req.query!==undefined&&req.query.genre!==undefined) genre = req.query.genre;
+  function getGenreList(){
+    return new Promise((resolve,reject)=>{
+      let result = request.post('http://localhost:3000/api/recommend/getseed',{form:{token:userToken.access_token}},(err,resp,body)=>{
+        if(err||resp.body===undefined){
+          reject({msg:"error"});
+        }else{
+          resolve(JSON.parse(resp.body));
+        }
+      });
+    });
 
+  }
+  function getRecommendList(){
+    return new Promise((resolve,reject)=>{
+      let recommendList = request.post('http://localhost:3000/api/recommend/list',{form:{token:userToken.access_token,data:genre}},(err,resp,body)=>{
+        if(err||resp.body===undefined){
+          reject(err);
+        }else{
+          resolve(JSON.parse(resp.body));
+        }
+      });
+    });
+  }
+  function isValidSeed(){
+    return new Promise((resolve,reject) => {
+      let seedList = request.post('http://localhost:3000/api/recommend/chkseed',{form:{token:userToken.access_token,data:genre}},(err,resp,body)=>{
+        if(err||resp.body===undefined){
+          reject(err);
+        }else{
+          const isValid = JSON.parse(resp.body);
+          resolve(isValid);
+        }
+      });
+    });
+  }
+  renderRes = {
+    result:{
+      genreList:undefined,
+      recommendList:undefined
+    }
+  };
+
+  getGenreList().then((result)=>{
+    if(result.genres===undefined){
+      renderRes = errorRes;
+      renderRes.msg = result.msg;
+    }else{
+      renderRes.result.genreList = result.genres;
+    }
+    return isValidSeed();
+  }).then((isValid)=>{
+    console.log(isValid);
+    if(isValid.result){
+        return getRecommendList();
+    }else{
+      return {};
+    }
+  }).then((result)=>{
+    console.log(result);
+    if (result !== undefined||result.tracks !== undefined){
+      renderRes.result.recommendList = result.tracks;
+    }
+  }).catch(()=>{
+    renderRes = errorRes;
+    renderRes.msg = "recommend process error.";
+  }).then(() => {
+        res.render('spotify/recommend', renderRes);
+   });
 });
 router.get('/search',(req,res)=>{
   let filter = {
@@ -105,7 +182,7 @@ router.get('/search',(req,res)=>{
   let result = request.post('http://localhost:3000/api/search',{filter:filter},(err,resp,body)=>{
     let response = JSON.parse(body);
     if(err||response===undefined){
-        renderRes = errorRes;
+
     }else{
 
     }
