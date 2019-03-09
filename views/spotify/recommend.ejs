@@ -1,26 +1,63 @@
+<% include ./../include/header%>
 <form>
-    <ul>
+    <ul id="rec_cate">
         <%
             if(result!==undefined){
                 if(result.genreList!==undefined){
          %>
-                    <ul>
+                    <ul class="row">
                         <%
                             result.genreList.forEach((genre)=>{
                         %>
-                                <li><%=genre%></li>
+                                <li class="col s2">
+                                    <label>
+                                        <input type="checkbox" class="with-gap" name="genre" value="<%=genre%>"/>
+                                        <span><%=genre.substring(0,1).toUpperCase().concat(genre.substring(1,genre.length))%></span>
+                                    </label>
+                                </li>
                         <%
                             });
                         %>
 
                     </ul>
+        </ul>
+        <button class="btn waves-effect waves-light" type="submit">
+            <span>Recommend with this Genre</span>
+        </button>
+    </form>
+    <ul>
+        <%
+            }
+            if(result.recommendList!==undefined){
+
+                for(const item of result.recommendList){
+         %>
+                    <li>
+                        <p><%=item.name%></p>
+                        <p><%=item.popularity%></p>
+                        <p><a href="<%=item.url%>">Link</a></p>
+                        <p><img src="<%=item.imageURL%>"/></p>
+                        <ul>
+         <%
+                    for(const artist of item.artists){
+         %>
+                            <li>
+                                <p><%=artist.name%></p>
+                                <p><%=artist.genre%></p>
+                                <p><%=artist.follows%></p>
+                                <img src="<%=artist.imageURL || "images/default.png"%>" alt="/"/>
+                            </li>
+        <%
+                    }
+         %>
+                        </ul>
+                    </li>
         <%
                 }
-                if(result.recommendList!==undefined){
-         %>
-                    <p><%=JSON.stringify(result.recommendList)%></p>
-         <%
-                }
+                %>
+    </ul>
+        <%
+            }
                 if(result.msg!==undefined){
           %>
                     <p><%=result.msg%></p>
@@ -28,7 +65,8 @@
                 }
             }
         %>
-    </ul>
 
 
-</form>
+
+
+<% include ./../include/footer%>

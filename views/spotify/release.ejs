@@ -1,10 +1,6 @@
-<html>
-    <head></head>
-    <body>
+<% include ./../include/header%>
         <%if(result!==undefined){%>
-            <%if(result.error!==undefined){%>
-                <%-result.error%>
-            <%}else if(result.songList!==undefined&&result.artistList!==undefined){
+            <%if(result.songList!==undefined&&result.artistList!==undefined){
                 const songList = result.songList;
                 const artistList = result.artistList;
             %>
@@ -31,5 +27,4 @@
                 </ul>
              <%}%>
         <%}%>
-    </body>
-</html>
+<% include ./../include/footer%>

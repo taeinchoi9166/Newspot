@@ -1,0 +1,54 @@
+<%include ./../include/header%>
+<form>
+    <div class="row">
+        <div class="input-field col s8 offset-s1">
+            <input type="text" name="keyword" placeholder="keyword" class="validate">
+            <label for="keyword">Input Keyword to here</label>
+        </div>
+        <input type="number" name="min_popularity">
+        <input type="text" name="criteria_date" class="datepicker">
+        <button class="btn waves-button-input col s2" type="submit"></button>
+    </div>
+</form>
+<%
+    if(result!==undefined&&result.tracks!==undefined){
+%>
+    <ul>
+<%
+        for(const item of result.tracks){
+%>
+            <li>
+                <p><%=item.name%></p>
+                <p><%=item.popularity%></p>
+                <p><%=item.release_date%></p>
+                <a href="<%=item.url%>">Link</a>
+                <img src="<%=item.imageURL%>"/>
+                <div class="card white-text">
+                    <div class="card-content">
+                        <span class="black-text"><%=item.album.name%></span>
+                        <a href="<%=item.album.url%>"><span>Go to Album</span></a>
+                    </div>
+                </div>
+                <ul>
+                    <%
+                        for(const artist of item.artists){
+                    %>
+                            <li>
+                                <p><%=artist.name%></p>
+                                <p><%=artist.genre%></p>
+                                <p><%=artist.follows%></p>
+                                <img src="<%=artist.imageURL%>" alt="aritst_img">
+                            </li>
+                    <%
+                        }
+                    %>
+                </ul>
+            </li>
+<%
+        }
+%>
+    </ul>
+<%
+    }
+ %>
+<%include ./../include/footer%>
