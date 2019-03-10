@@ -15,11 +15,12 @@ let app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.set('etag','strong');
 
 app.use(bp.urlencoded({extended:false}));
 app.use(bp.json());
 app.use(logger('dev'));
-app.use(cors())
+app.use(cors());
 app.use(session({
   secret:'secretKeyword',
   resave:false,
